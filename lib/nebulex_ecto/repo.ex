@@ -179,6 +179,8 @@ defmodule Nebulex.Ecto.Repo do
       defp cache_evict(:replace, key, value),
         do: @cache.set(key, value)
 
+      defp key!(%Ecto.Query{from: {_tablename, schema}}, key),
+        do: {schema, key}
       defp key!(%{__struct__: struct}, key),
         do: {struct, key}
       defp key!(struct, key) when is_atom(struct),

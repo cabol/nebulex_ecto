@@ -1,6 +1,7 @@
 defmodule Nebulex.Ecto.RepoTest do
   use ExUnit.Case, async: true
 
+  import Ecto.Query
   alias Nebulex.Ecto.TestRepo, as: Repo
   alias Nebulex.Ecto.TestCache, as: Cache
   alias Nebulex.Ecto.CacheableRepo
@@ -65,7 +66,23 @@ defmodule Nebulex.Ecto.RepoTest do
     assert CacheableRepo.get!(MySchema, 1)
   end
 
-  test "get_by and get_by!" do
+  test "get_by and get_by! when queryable is a schema" do
+    schema = %MySchema{id: 1, x: "abc"}
+    {:ok, _} = Repo.insert(schema)
+
+    refute Cache.get({MySchema, 1})
+
+    assert CacheableRepo.get_by((from e in MySchema), id: 1)
+    assert Cache.get({MySchema, [id: 1]})
+    assert Cache.get!({MySchema, [id: 1]})
+
+    refute CacheableRepo.get_by(MySchema, [id: -1])
+    assert_raise Ecto.NoResultsError, fn ->
+      CacheableRepo.get_by!(MySchema, [id: -1])
+    end
+  end
+
+  test "get_by and get_by! when queryable is a query" do
     schema = %MySchema{id: 1, x: "abc"}
     {:ok, _} = Repo.insert(schema)
 
