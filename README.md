@@ -20,16 +20,16 @@ end
 Suppose you have an Ecto repo:
 
 ```elixir
-defmodule MyApp.Cache do
-  use Nebulex.Cache, otp_app: :my_app
+defmodule MyApp.Repo do
+  use Ecto.Repo, otp_app: :my_app
 end
 ```
 
 And a Nebulex cache:
 
 ```elixir
-defmodule MyApp.Repo do
-  use Ecto.Repo, otp_app: :my_app
+defmodule MyApp.Cache do
+  use Nebulex.Cache, otp_app: :my_app
 end
 ```
 
