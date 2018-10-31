@@ -8,7 +8,9 @@ defmodule Nebulex.Ecto do
   Suppose you have an Ecto repo and a Nebulex cache separately:
 
       defmodule MyApp.Cache do
-        use Nebulex.Cache, otp_app: :my_app
+        use Nebulex.Cache,
+          otp_app: :my_app,
+          adapter: Nebulex.Adapters.Local
       end
 
       defmodule MyApp.Repo do
@@ -29,7 +31,7 @@ defmodule Nebulex.Ecto do
         repo: MyApp.Repo
 
       config :my_app, MyApp.Cache,
-        adapter: Nebulex.Adapters.Local
+        gc_interval: 3600
 
       config :my_app, MyApp.Repo,
         adapter: Ecto.Adapters.Postgres,

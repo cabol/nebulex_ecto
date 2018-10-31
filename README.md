@@ -3,15 +3,15 @@
 A project that integrates [Nebulex](https://github.com/cabol/nebulex)
 with [Ecto](https://github.com/elixir-ecto/ecto).
 
-> It's still a **WIP**
-
 ## Installation
 
 Add `nebulex_ecto` to your list dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:nebulex_ecto, github: "cabol/nebulex_ecto"}]
+  [
+    {:nebulex_ecto, github: "cabol/nebulex_ecto"}
+  ]
 end
 ```
 

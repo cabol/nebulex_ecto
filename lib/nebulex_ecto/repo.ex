@@ -32,7 +32,9 @@ defmodule Nebulex.Ecto.Repo do
   The cache and repo:
 
       defmodule MyApp.Cache do
-        use Nebulex.Cache, otp_app: :my_app
+        use Nebulex.Cache,
+          otp_app: :my_app,
+          adapter: Nebulex.Adapters.Local
       end
 
       defmodule MyApp.Repo do
@@ -42,7 +44,7 @@ defmodule Nebulex.Ecto.Repo do
   And this is an example of how their configuration would looks like:
 
       config :my_app, MyApp.Cache,
-        adapter: Nebulex.Adapters.Local
+        gc_interval: 3600
 
       config :my_app, MyApp.Repo,
         adapter: Ecto.Adapters.Postgres,
@@ -85,6 +87,10 @@ defmodule Nebulex.Ecto.Repo do
       {otp_app, cache, repo} = Nebulex.Ecto.Repo.compile_config(__MODULE__, opts)
       @cache cache
       @repo repo
+
+      def __cache__, do: @cache
+
+      def __repo__, do: @repo
 
       def get(queryable, id, opts \\ []) do
         do_get(queryable, id, opts, &@repo.get/3)
@@ -136,15 +142,26 @@ defmodule Nebulex.Ecto.Repo do
 
       ## Helpers
 
-      defp do_get(queryable, key, opts, repo_fallback) do
+      def key(%Ecto.Query{from: {_tablename, schema}}, key),
+        do: {schema, key}
+
+      def key(%{__struct__: struct}, key),
+        do: {struct, key}
+
+      def key(struct, key) when is_atom(struct),
+        do: {struct, key}
+
+      defp do_get(queryable, key, opts, fallback) do
         {nbx_key, opts} = Keyword.pop(opts, :nbx_key)
-        cache_key = nbx_key || key!(queryable, key)
+        cache_key = nbx_key || key(queryable, key)
 
         cond do
           value = @cache.get(cache_key) ->
             value
-          value = repo_fallback.(queryable, key, opts) ->
+
+          value = fallback.(queryable, key, opts) ->
             @cache.set(cache_key, value)
+
           true ->
             nil
         end
@@ -156,9 +173,10 @@ defmodule Nebulex.Ecto.Repo do
 
         case fun.(struct_or_changeset, opts) do
           {:ok, schema} = res ->
-            cache_key = nbx_key || key!(schema, schema.id)
+            cache_key = nbx_key || key(schema, schema.id)
             _ = cache_evict(nbx_evict, cache_key, schema)
             res
+
           error ->
             error
         end
@@ -169,22 +187,16 @@ defmodule Nebulex.Ecto.Repo do
         {nbx_evict, opts} = Keyword.pop(opts, :nbx_evict, :delete)
 
         schema = fun.(struct_or_changeset, opts)
-        cache_key = nbx_key || key!(schema, schema.id)
+        cache_key = nbx_key || key(schema, schema.id)
         _ = cache_evict(nbx_evict, cache_key, schema)
         schema
       end
 
       defp cache_evict(:delete, key, _),
         do: @cache.delete(key)
+
       defp cache_evict(:replace, key, value),
         do: @cache.set(key, value)
-
-      defp key!(%Ecto.Query{from: {_tablename, schema}}, key),
-        do: {schema, key}
-      defp key!(%{__struct__: struct}, key),
-        do: {struct, key}
-      defp key!(struct, key) when is_atom(struct),
-        do: {struct, key}
     end
   end
 
@@ -193,16 +205,16 @@ defmodule Nebulex.Ecto.Repo do
   """
   def compile_config(facade, opts) do
     otp_app = Keyword.fetch!(opts, :otp_app)
-    config  = Application.get_env(otp_app, facade, [])
+    config = Application.get_env(otp_app, facade, [])
 
     unless cache = opts[:cache] || config[:cache] do
       raise ArgumentError,
-        "missing :cache configuration in config #{inspect otp_app}, #{inspect facade}"
+            "missing :cache configuration in config #{inspect(otp_app)}, #{inspect(facade)}"
     end
 
     unless repo = opts[:repo] || config[:repo] do
       raise ArgumentError,
-        "missing :repo configuration in config #{inspect otp_app}, #{inspect facade}"
+            "missing :repo configuration in config #{inspect(otp_app)}, #{inspect(facade)}"
     end
 
     {otp_app, cache, repo}
