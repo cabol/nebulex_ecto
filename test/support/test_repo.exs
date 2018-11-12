@@ -1,4 +1,4 @@
-defmodule Nebulex.Ecto.TestAdapter do
+defmodule NebulexEcto.TestAdapter do
   @moduledoc """
   Taken from `Ecto` test ([test_repo](https://github.com/elixir-ecto/ecto/blob/master/test/support/test_repo.exs))
   """
@@ -6,6 +6,7 @@ defmodule Nebulex.Ecto.TestAdapter do
   @behaviour Ecto.Adapter
 
   alias Ecto.Migration.SchemaMigration
+  alias Ecto.UUID
 
   defmacro __before_compile__(_opts), do: :ok
 
@@ -25,15 +26,15 @@ defmodule Nebulex.Ecto.TestAdapter do
 
   ## Types
 
-  def loaders(:binary_id, type), do: [Ecto.UUID, type]
+  def loaders(:binary_id, type), do: [UUID, type]
   def loaders(_primitive, type), do: [type]
 
-  def dumpers(:binary_id, type), do: [type, Ecto.UUID]
+  def dumpers(:binary_id, type), do: [type, UUID]
   def dumpers(_primitive, type), do: [type]
 
   def autogenerate(:id), do: nil
-  def autogenerate(:embed_id), do: Ecto.UUID.autogenerate()
-  def autogenerate(:binary_id), do: Ecto.UUID.autogenerate()
+  def autogenerate(:embed_id), do: UUID.autogenerate()
+  def autogenerate(:binary_id), do: UUID.autogenerate()
 
   ## Queryable
 
@@ -137,10 +138,10 @@ defmodule Nebulex.Ecto.TestAdapter do
   end
 end
 
-Application.put_env(:nebulex_ecto, Nebulex.Ecto.TestRepo, user: "invalid")
+Application.put_env(:nebulex_ecto, NebulexEcto.TestRepo, user: "invalid")
 
-defmodule Nebulex.Ecto.TestRepo do
-  use Ecto.Repo, otp_app: :nebulex_ecto, adapter: Nebulex.Ecto.TestAdapter
+defmodule NebulexEcto.TestRepo do
+  use Ecto.Repo, otp_app: :nebulex_ecto, adapter: NebulexEcto.TestAdapter
 
   def init(type, opts) do
     opts = [url: "ecto://user:pass@local/hello"] ++ opts
@@ -149,4 +150,4 @@ defmodule Nebulex.Ecto.TestRepo do
   end
 end
 
-Nebulex.Ecto.TestRepo.start_link()
+NebulexEcto.TestRepo.start_link()

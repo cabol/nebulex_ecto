@@ -1,6 +1,6 @@
-defmodule Nebulex.Ecto do
+defmodule NebulexEcto do
   @moduledoc """
-  `Nebulex.Ecto` is composed by a single main module: `Nebulex.Ecto.Repo`,
+  `NebulexEcto` is composed by a single main module: `NebulexEcto.Repo`,
   which is the wrapper on top of `Nebulex.Cache` and `Ecto.Repo`.
 
   ## Cacheable Repo
@@ -17,11 +17,11 @@ defmodule Nebulex.Ecto do
         use Ecto.Repo, otp_app: :my_app
       end
 
-  The idea is to encapsulate both in a single module using `Nebulex.Ecto.Repo`,
+  The idea is to encapsulate both in a single module using `NebulexEcto.Repo`,
   like:
 
       defmodule MyApp.CacheableRepo do
-        use Nebulex.Ecto.Repo, otp_app: :my_app
+        use NebulexEcto.Repo, otp_app: :my_app
       end
 
   Configuration would be like this:
@@ -41,7 +41,7 @@ defmodule Nebulex.Ecto do
         hostname: "localhost"
 
   Now we can use `MyApp.CacheableRepo` as a regular Ecto repo, of course,
-  there are some constraints, `Nebulex.Ecto.Repo` only provides some of
+  there are some constraints, `NebulexEcto.Repo` only provides some of
   the `Ecto.Repo` functions (the basic ones – get, get_by, insert, update,
   delete, etc.), please check them out before.
 

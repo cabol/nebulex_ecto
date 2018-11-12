@@ -1,10 +1,12 @@
-defmodule Nebulex.Ecto.RepoTest do
+defmodule NebulexEcto.RepoTest do
   use ExUnit.Case, async: true
 
   import Ecto.Query
-  alias Nebulex.Ecto.TestRepo, as: Repo
-  alias Nebulex.Ecto.TestCache, as: Cache
-  alias Nebulex.Ecto.CacheableRepo
+
+  alias Ecto.Changeset
+  alias NebulexEcto.CacheableRepo
+  alias NebulexEcto.TestCache, as: Cache
+  alias NebulexEcto.TestRepo, as: Repo
 
   defmodule MySchema do
     use Ecto.Schema
@@ -29,17 +31,17 @@ defmodule Nebulex.Ecto.RepoTest do
   end
 
   test "fail on compile_config because missing cache config" do
-    assert_raise ArgumentError, ~r"missing :cache configuration in config", fn ->
+    assert_raise ArgumentError, ~r"missing :cache option in", fn ->
       defmodule MissingNebulexEctoConfig do
-        use Nebulex.Ecto.Repo, otp_app: :nebulex_ecto, repo: Nebulex.Ecto.TestRepo
+        use NebulexEcto.Repo, otp_app: :nebulex_ecto, repo: NebulexEcto.TestRepo
       end
     end
   end
 
   test "fail on compile_config because missing repo config" do
-    assert_raise ArgumentError, ~r"missing :repo configuration in config", fn ->
+    assert_raise ArgumentError, ~r"missing :repo option in", fn ->
       defmodule MissingNebulexEctoConfig do
-        use Nebulex.Ecto.Repo, otp_app: :nebulex_ecto, cache: Nebulex.Ecto.TestCache
+        use NebulexEcto.Repo, otp_app: :nebulex_ecto, cache: NebulexEcto.TestCache
       end
     end
   end
@@ -112,8 +114,8 @@ defmodule Nebulex.Ecto.RepoTest do
     _ = CacheableRepo.insert!(schema, nbx_evict: :replace)
     assert Cache.get!({MySchema, 1})
 
-    changeset = Ecto.Changeset.change(schema, x: "New")
-    changeset = Ecto.Changeset.add_error(changeset, :z, "empty")
+    changeset = Changeset.change(schema, x: "New")
+    changeset = Changeset.add_error(changeset, :z, "empty")
     {:error, _} = CacheableRepo.insert(changeset)
 
     assert_raise Ecto.InvalidChangesetError, fn ->
@@ -130,16 +132,16 @@ defmodule Nebulex.Ecto.RepoTest do
     refute Cache.get({MySchema, 1})
 
     schema = %MySchema{id: 1, x: "abc"}
-    changeset = Ecto.Changeset.change(schema, x: "New")
+    changeset = Changeset.change(schema, x: "New")
     {:ok, _} = CacheableRepo.update(changeset)
     refute Cache.get({MySchema, 1})
 
-    changeset = Ecto.Changeset.change(schema, x: "New")
+    changeset = Changeset.change(schema, x: "New")
     _ = CacheableRepo.update!(changeset, nbx_evict: :replace)
     assert Cache.get!({MySchema, 1})
 
-    changeset = Ecto.Changeset.change(schema, x: "New")
-    changeset = Ecto.Changeset.add_error(changeset, :z, "empty")
+    changeset = Changeset.change(schema, x: "New")
+    changeset = Changeset.add_error(changeset, :z, "empty")
     {:error, _} = CacheableRepo.update(changeset)
 
     assert_raise Ecto.InvalidChangesetError, fn ->
@@ -170,8 +172,8 @@ defmodule Nebulex.Ecto.RepoTest do
     _ = CacheableRepo.insert!(schema, nbx_evict: :replace)
     assert Cache.get!({MySchema, 1})
 
-    changeset = Ecto.Changeset.change(schema, x: "New")
-    changeset = Ecto.Changeset.add_error(changeset, :z, "empty")
+    changeset = Changeset.change(schema, x: "New")
+    changeset = Changeset.add_error(changeset, :z, "empty")
     {:error, _} = CacheableRepo.delete(changeset)
 
     assert_raise Ecto.InvalidChangesetError, fn ->
@@ -186,14 +188,14 @@ defmodule Nebulex.Ecto.RepoTest do
     assert Cache.get({MySchema, 1})
 
     schema = %MySchema{id: 1, x: "abc"}
-    changeset = Ecto.Changeset.change(schema, x: "New")
+    changeset = Changeset.change(schema, x: "New")
     {:ok, _} = CacheableRepo.insert_or_update(changeset)
     refute Cache.get({MySchema, 1})
 
     _ = CacheableRepo.insert_or_update!(changeset, nbx_evict: :replace)
     assert Cache.get!({MySchema, 1})
 
-    changeset = Ecto.Changeset.add_error(changeset, :z, "empty")
+    changeset = Changeset.add_error(changeset, :z, "empty")
     {:error, _} = CacheableRepo.insert_or_update(changeset)
 
     assert_raise Ecto.InvalidChangesetError, fn ->

@@ -1,4 +1,4 @@
-defmodule Nebulex.Ecto.Mixfile do
+defmodule NebulexEcto.Mixfile do
   use Mix.Project
 
   @version "0.1.0"
@@ -9,7 +9,7 @@ defmodule Nebulex.Ecto.Mixfile do
       version: @version,
       elixir: "~> 1.5",
       deps: deps(),
-      package: package(),
+
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
         coveralls: :test,
@@ -17,7 +17,9 @@ defmodule Nebulex.Ecto.Mixfile do
         "coveralls.post": :test,
         "coveralls.html": :test
       ],
-      description: "Integration between Nebulex & Ecto"
+
+      package: package(),
+      description: "Ecto & Nebulex Integration – Ecto Cacheable Repo with Nebulex"
     ]
   end
 
@@ -34,8 +36,13 @@ defmodule Nebulex.Ecto.Mixfile do
       {:postgrex, "~> 0.11", only: :test},
       {:excoveralls, "~> 0.6", only: :test},
 
+      # Code Analysis
+      {:dialyxir, "~> 0.5", optional: true, only: :dev, runtime: false},
+      {:credo, "~> 0.10", optional: true, only: [:dev, :test]},
+
       # Docs
-      {:ex_doc, ">= 0.0.0", only: :docs}
+      {:ex_doc, "~> 0.19", only: :docs},
+      {:inch_ex, "~> 1.0", only: :docs}
     ]
   end
 

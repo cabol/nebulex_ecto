@@ -1,4 +1,4 @@
-defmodule Nebulex.Ecto.Repo do
+defmodule NebulexEcto.Repo do
   @moduledoc """
   Wrapper/Facade on top of `Nebulex.Cache` and `Ecto.Repo`.
 
@@ -15,21 +15,16 @@ defmodule Nebulex.Ecto.Repo do
   eviction logic, which can be delete the data from cache or just replace it;
   depending on the `:nbx_evict` option.
 
-  When used, `Nebulex.Ecto.Repo` expects the `:otp_app` as option.
-  The `:otp_app` should point to an OTP application that has
-  the wrapper configuration. For example:
+  When used, `NebulexEcto.Repo` expects the `:repo` and `:cache` as options.
+  For example:
 
       defmodule MyApp.CacheableRepo do
-        use Nebulex.Ecto.Repo, otp_app: :my_app
+        use NebulexEcto.Repo,
+          cache: MyApp.Cache,
+          repo: MyApp.Repo
       end
 
-  Could be configured with:
-
-      config :my_app, MyApp.CacheableRepo,
-        cache: MyApp.Cache,
-        repo: MyApp.Repo
-
-  The cache and repo:
+  The cache and repo respectively:
 
       defmodule MyApp.Cache do
         use Nebulex.Cache,
@@ -38,7 +33,9 @@ defmodule Nebulex.Ecto.Repo do
       end
 
       defmodule MyApp.Repo do
-        use Ecto.Repo, otp_app: :my_app
+        use Ecto.Repo,
+          otp_app: :my_app,
+          adapter: Ecto.Adapters.Postgres
       end
 
   And this is an example of how their configuration would looks like:
@@ -47,7 +44,6 @@ defmodule Nebulex.Ecto.Repo do
         gc_interval: 3600
 
       config :my_app, MyApp.Repo,
-        adapter: Ecto.Adapters.Postgres,
         database: "ecto_simple",
         username: "postgres",
         password: "postgres",
@@ -61,7 +57,7 @@ defmodule Nebulex.Ecto.Repo do
     * `:repo` - a compile-time option that specifies the Ecto repo
       to be used by the wrapper.
 
-  To configure `cache` and `repo`, see the `Nebulex` and `Ecto` documentation
+  To configure the cache and repo, see `Nebulex` and `Ecto` documentation
   respectively.
 
   ## Shared options
@@ -82,9 +78,10 @@ defmodule Nebulex.Ecto.Repo do
   @doc false
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
-      otp_app = Keyword.fetch!(opts, :otp_app)
+      alias NebulexEcto.Repo, as: CacheableRepo
 
-      {otp_app, cache, repo} = Nebulex.Ecto.Repo.compile_config(__MODULE__, opts)
+      {cache, repo} = CacheableRepo.compile_config(__MODULE__, opts)
+
       @cache cache
       @repo repo
 
@@ -204,19 +201,14 @@ defmodule Nebulex.Ecto.Repo do
   Retrieves the compile time configuration.
   """
   def compile_config(facade, opts) do
-    otp_app = Keyword.fetch!(opts, :otp_app)
-    config = Application.get_env(otp_app, facade, [])
-
-    unless cache = opts[:cache] || config[:cache] do
-      raise ArgumentError,
-            "missing :cache configuration in config #{inspect(otp_app)}, #{inspect(facade)}"
+    unless cache = Keyword.get(opts, :cache) do
+      raise ArgumentError, "missing :cache option in #{facade}"
     end
 
-    unless repo = opts[:repo] || config[:repo] do
-      raise ArgumentError,
-            "missing :repo configuration in config #{inspect(otp_app)}, #{inspect(facade)}"
+    unless repo = Keyword.get(opts, :repo) do
+      raise ArgumentError, "missing :repo option in #{facade}"
     end
 
-    {otp_app, cache, repo}
+    {cache, repo}
   end
 end
