@@ -1,7 +1,7 @@
 defmodule NebulexEcto do
   @moduledoc """
-  `NebulexEcto` is composed by a single main module: `NebulexEcto.Repo`,
-  which is the wrapper on top of `Nebulex.Cache` and `Ecto.Repo`.
+  `NebulexEcto` provides the module `NebulexEcto.Repo`, which is the wrapper
+  on top of `Nebulex.Cache` and `Ecto.Repo`.
 
   ## Cacheable Repo
 
@@ -14,27 +14,26 @@ defmodule NebulexEcto do
       end
 
       defmodule MyApp.Repo do
-        use Ecto.Repo, otp_app: :my_app
+        use Ecto.Repo,
+          otp_app: :my_app,
+          adapter: Ecto.Adapters.Postgres
       end
 
   The idea is to encapsulate both in a single module using `NebulexEcto.Repo`,
-  like:
+  like so:
 
       defmodule MyApp.CacheableRepo do
-        use NebulexEcto.Repo, otp_app: :my_app
+        use NebulexEcto.Repo,
+          cache: MyApp.Cache,
+          repo: MyApp.Repo
       end
 
   Configuration would be like this:
-
-      config :my_app, MyApp.CacheableRepo,
-        cache: MyApp.Cache,
-        repo: MyApp.Repo
 
       config :my_app, MyApp.Cache,
         gc_interval: 3600
 
       config :my_app, MyApp.Repo,
-        adapter: Ecto.Adapters.Postgres,
         database: "ecto_simple",
         username: "postgres",
         password: "postgres",

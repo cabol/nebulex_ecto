@@ -20,6 +20,9 @@ before_script:
   - mix deps.get --only test
 script:
   - mix coveralls.travis
-  # - mix dialyzer --plt
-  # - mix dialyzer --halt-exit-status
-  # - mix credo --strict
+  - mix dialyzer --plt
+  - mix dialyzer --halt-exit-status
+  - mix credo --strict
+after_script:
+  - mix deps.get --only docs
+  - MIX_ENV=docs mix inch.report

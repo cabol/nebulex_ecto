@@ -3,7 +3,9 @@
 > Ecto Cacheable Repo with Nebulex
 
 [![Build Status](https://travis-ci.org/cabol/nebulex_ecto.svg?branch=master)](https://travis-ci.org/cabol/nebulex_ecto)
-[![Coverage Status](https://coveralls.io/repos/github/cabol/nebulex_ecto/badge.svg?branch=master)]
+[![Coverage Status](https://coveralls.io/repos/github/cabol/nebulex_ecto/badge.svg?branch=master)](https://coveralls.io/github/cabol/nebulex_ecto?branch=master)
+[![Inline docs](http://inch-ci.org/github/cabol/nebulex_ecto.svg)](http://inch-ci.org/github/cabol/nebulex_ecto)
+[![Docs](https://img.shields.io/badge/docs-hexpm-blue.svg)](https://hexdocs.pm/nebulex_ecto)
 
 A project that integrates [Nebulex](https://github.com/cabol/nebulex)
 with [Ecto](https://github.com/elixir-ecto/ecto) out-of-box.
@@ -15,7 +17,7 @@ Add `nebulex_ecto` to your list dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:nebulex_ecto, github: "cabol/nebulex_ecto"}
+    {:nebulex_ecto, "~> 0.1"}
   ]
 end
 ```
