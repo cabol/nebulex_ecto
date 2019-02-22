@@ -7,7 +7,7 @@ defmodule NebulexEcto.Mixfile do
     [
       app: :nebulex_ecto,
       version: @version,
-      elixir: "~> 1.8",
+      elixir: "~> 1.5",
       deps: deps(),
 
       # Docs
