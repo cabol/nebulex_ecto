@@ -1,3 +1,5 @@
-defmodule Nebulex.Ecto.CacheableRepo do
-  use Nebulex.Ecto.Repo, otp_app: :nebulex_ecto, cache: Nebulex.Ecto.TestCache, repo: Nebulex.Ecto.TestRepo
+defmodule NebulexEcto.CacheableRepo do
+  use NebulexEcto.Repo,
+    cache: NebulexEcto.TestCache,
+    repo: NebulexEcto.TestRepo
 end

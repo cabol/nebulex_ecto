@@ -1,45 +1,46 @@
-defmodule Nebulex.Ecto do
+defmodule NebulexEcto do
   @moduledoc """
-  `Nebulex.Ecto` is composed by a single main module: `Nebulex.Ecto.Repo`,
-  which is the wrapper on top of `Nebulex.Cache` and `Ecto.Repo`.
+  `NebulexEcto` provides the module `NebulexEcto.Repo`, which is the wrapper
+  on top of `Nebulex.Cache` and `Ecto.Repo`.
 
   ## Cacheable Repo
 
   Suppose you have an Ecto repo and a Nebulex cache separately:
 
       defmodule MyApp.Cache do
-        use Nebulex.Cache, otp_app: :my_app
+        use Nebulex.Cache,
+          otp_app: :my_app,
+          adapter: Nebulex.Adapters.Local
       end
 
       defmodule MyApp.Repo do
-        use Ecto.Repo, otp_app: :my_app
+        use Ecto.Repo,
+          otp_app: :my_app,
+          adapter: Ecto.Adapters.Postgres
       end
 
-  The idea is to encapsulate both in a single module using `Nebulex.Ecto.Repo`,
-  like:
+  The idea is to encapsulate both in a single module using `NebulexEcto.Repo`,
+  like so:
 
       defmodule MyApp.CacheableRepo do
-        use Nebulex.Ecto.Repo, otp_app: :my_app
+        use NebulexEcto.Repo,
+          cache: MyApp.Cache,
+          repo: MyApp.Repo
       end
 
   Configuration would be like this:
 
-      config :my_app, MyApp.CacheableRepo,
-        cache: MyApp.Cache,
-        repo: MyApp.Repo
-
       config :my_app, MyApp.Cache,
-        adapter: Nebulex.Adapters.Local
+        gc_interval: 3600
 
       config :my_app, MyApp.Repo,
-        adapter: Ecto.Adapters.Postgres,
         database: "ecto_simple",
         username: "postgres",
         password: "postgres",
         hostname: "localhost"
 
   Now we can use `MyApp.CacheableRepo` as a regular Ecto repo, of course,
-  there are some constraints, `Nebulex.Ecto.Repo` only provides some of
+  there are some constraints, `NebulexEcto.Repo` only provides some of
   the `Ecto.Repo` functions (the basic ones – get, get_by, insert, update,
   delete, etc.), please check them out before.
 

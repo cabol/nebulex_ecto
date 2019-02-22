@@ -1,9 +1,14 @@
-# Nebulex.Ecto
+# NebulexEcto
+> ### Ecto & Nebulex Integration
+> Ecto Cacheable Repo with Nebulex
+
+[![Build Status](https://travis-ci.org/cabol/nebulex_ecto.svg?branch=master)](https://travis-ci.org/cabol/nebulex_ecto)
+[![Coverage Status](https://coveralls.io/repos/github/cabol/nebulex_ecto/badge.svg?branch=master)](https://coveralls.io/github/cabol/nebulex_ecto?branch=master)
+[![Inline docs](http://inch-ci.org/github/cabol/nebulex_ecto.svg)](http://inch-ci.org/github/cabol/nebulex_ecto)
+[![Docs](https://img.shields.io/badge/docs-hexpm-blue.svg)](https://hexdocs.pm/nebulex_ecto)
 
 A project that integrates [Nebulex](https://github.com/cabol/nebulex)
-with [Ecto](https://github.com/elixir-ecto/ecto).
-
-> It's still a **WIP**
+with [Ecto](https://github.com/elixir-ecto/ecto) out-of-box.
 
 ## Installation
 
@@ -11,7 +16,9 @@ Add `nebulex_ecto` to your list dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:nebulex_ecto, github: "cabol/nebulex_ecto"}]
+  [
+    {:nebulex_ecto, "~> 0.1"}
+  ]
 end
 ```
 
@@ -21,7 +28,9 @@ Suppose you have an Ecto repo:
 
 ```elixir
 defmodule MyApp.Repo do
-  use Ecto.Repo, otp_app: :my_app
+  use Ecto.Repo,
+    otp_app: :my_app,
+    adapter: Ecto.Adapters.Postgres
 end
 ```
 
@@ -29,39 +38,25 @@ And a Nebulex cache:
 
 ```elixir
 defmodule MyApp.Cache do
-  use Nebulex.Cache, otp_app: :my_app
+  use Nebulex.Cache,
+    otp_app: :my_app,
+    adapter: Nebulex.Adapters.Local
 end
 ```
 
-The idea is to encapsulate both in a single module using `Nebulex.Ecto.Repo`,
-like:
+The idea is to encapsulate both in a single module by means of
+`NebulexEcto.Repo`, like so:
 
 ```elixir
 defmodule MyApp.CacheableRepo do
-  use Nebulex.Ecto.Repo, otp_app: :my_app
+  use NebulexEcto.Repo,
+    cache: MyApp.Cache,
+    repo: MyApp.Repo
 end
 ```
 
-Configuration would be like this:
-
-```elixir
-config :my_app, MyApp.CacheableRepo,
-  cache: MyApp.Cache,
-  repo: MyApp.Repo
-
-config :my_app, MyApp.Cache,
-  adapter: Nebulex.Adapters.Local
-
-config :my_app, MyApp.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  database: "ecto_simple",
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost"
-```
-
 Now we can use `MyApp.CacheableRepo` as a regular Ecto repo, of course,
-there are some constraints, [`Nebulex.Ecto.Repo`](lib/nebulex_ecto/repo.ex)
+there are some constraints, [`NebulexEcto.Repo`](lib/nebulex_ecto/repo.ex)
 only provides some of the `Ecto.Repo` functions (the basic ones – get, get_by,
 insert, update, delete, etc.), [please check them out before](lib/nebulex_ecto/repo.ex).
 
@@ -97,3 +92,19 @@ changeset = Ecto.Changeset.change schema, x: "New"
 
 MyApp.CacheableRepo.delete(schema)
 ```
+
+## Running Tests
+
+To run the tests:
+
+```
+$ mix test
+```
+
+Running tests with coverage:
+
+```
+$ mix coveralls.html
+```
+
+And you can check out the coverage result in `cover/excoveralls.html`.
