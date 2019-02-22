@@ -1,13 +1,13 @@
 defmodule NebulexEcto.Mixfile do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.2.0"
 
   def project do
     [
       app: :nebulex_ecto,
       version: @version,
-      elixir: "~> 1.5",
+      elixir: "~> 1.8",
       deps: deps(),
 
       # Docs
@@ -41,8 +41,8 @@ defmodule NebulexEcto.Mixfile do
       {:nebulex, "~> 1.0"},
 
       # Test
-      {:ecto, "~> 2.0", only: :test},
-      {:postgrex, "~> 0.11", only: :test},
+      {:ecto, "~> 3.0", only: :test},
+      {:postgrex, ">= 0.0.0", only: :test},
       {:excoveralls, "~> 0.6", only: :test},
 
       # Code Analysis

@@ -139,6 +139,9 @@ defmodule NebulexEcto.Repo do
 
       ## Helpers
 
+      def key(%Ecto.Query{from: %{source: {_tablename, schema}}}, key),
+        do: {schema, key}
+
       def key(%Ecto.Query{from: {_tablename, schema}}, key),
         do: {schema, key}
 
