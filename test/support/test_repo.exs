@@ -7,6 +7,8 @@ defmodule NebulexEcto.TestAdapter do
   @behaviour Ecto.Adapter.Schema
   @behaviour Ecto.Adapter.Transaction
 
+  alias Ecto.UUID
+
   defmacro __before_compile__(_opts), do: :ok
 
   def ensure_all_started(_, _) do
@@ -30,15 +32,15 @@ defmodule NebulexEcto.TestAdapter do
 
   ## Types
 
-  def loaders(:binary_id, type), do: [Ecto.UUID, type]
+  def loaders(:binary_id, type), do: [UUID, type]
   def loaders(_primitive, type), do: [type]
 
-  def dumpers(:binary_id, type), do: [type, Ecto.UUID]
+  def dumpers(:binary_id, type), do: [type, UUID]
   def dumpers(_primitive, type), do: [type]
 
   def autogenerate(:id), do: nil
-  def autogenerate(:embed_id), do: Ecto.UUID.autogenerate()
-  def autogenerate(:binary_id), do: Ecto.UUID.bingenerate()
+  def autogenerate(:embed_id), do: UUID.autogenerate()
+  def autogenerate(:binary_id), do: UUID.bingenerate()
 
   ## Queryable
 
