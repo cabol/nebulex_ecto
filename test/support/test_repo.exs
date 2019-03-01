@@ -16,7 +16,7 @@ defmodule NebulexEcto.TestAdapter do
   end
 
   def init(opts) do
-    :ecto_nebulex = opts[:otp_app]
+    :nebulex_ecto = opts[:otp_app]
     "user" = opts[:username]
     "pass" = opts[:password]
     "hello" = opts[:database]
@@ -142,10 +142,10 @@ defmodule NebulexEcto.TestAdapter do
   end
 end
 
-Application.put_env(:ecto_nebulex, NebulexEcto.TestRepo, user: "invalid")
+Application.put_env(:nebulex_ecto, NebulexEcto.TestRepo, user: "invalid")
 
 defmodule NebulexEcto.TestRepo do
-  use Ecto.Repo, otp_app: :ecto_nebulex, adapter: NebulexEcto.TestAdapter
+  use Ecto.Repo, otp_app: :nebulex_ecto, adapter: NebulexEcto.TestAdapter
 
   def init(type, opts) do
     opts = [url: "ecto://user:pass@local/hello"] ++ opts
