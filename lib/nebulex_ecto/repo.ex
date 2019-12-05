@@ -173,7 +173,7 @@ defmodule NebulexEcto.Repo do
 
         case fun.(struct_or_changeset, opts) do
           {:ok, schema} = res ->
-            cache_key = nbx_key || key(schema, schema.id)
+            cache_key = nbx_key || key(schema, primary_key(schema))
             _ = cache_evict(nbx_evict, cache_key, schema)
             res
 
@@ -187,7 +187,7 @@ defmodule NebulexEcto.Repo do
         {nbx_evict, opts} = Keyword.pop(opts, :nbx_evict, :delete)
 
         schema = fun.(struct_or_changeset, opts)
-        cache_key = nbx_key || key(schema, schema.id)
+        cache_key = nbx_key || key(schema, primary_key(schema))
         _ = cache_evict(nbx_evict, cache_key, schema)
         schema
       end
@@ -197,6 +197,11 @@ defmodule NebulexEcto.Repo do
 
       defp cache_evict(:replace, key, value),
         do: @cache.set(key, value)
+      
+      defp primary_key(schema) do
+        [key] = schema.__struct__.__schema__(:primary_key)
+        Map.get(schema, key)
+      end
     end
   end
 

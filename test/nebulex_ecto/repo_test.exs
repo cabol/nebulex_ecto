@@ -20,6 +20,16 @@ defmodule NebulexEcto.RepoTest do
     end
   end
 
+  defmodule MyAltSchema do
+    use Ecto.Schema
+
+    @primary_key {:uid, :id, []}
+
+    schema "my_alt_schema" do
+      field(:x, :string)
+    end
+  end
+
   setup do
     {:ok, pid} = Cache.start_link(n_generations: 2)
     :ok
@@ -67,6 +77,29 @@ defmodule NebulexEcto.RepoTest do
     # remove from repo and it should be still cached
     assert Repo.delete!(schema)
     assert CacheableRepo.get!(MySchema, 1)
+  end
+
+  test "Alt key get and get!" do
+    schema = %MyAltSchema{uid: 1, x: "abc"}
+    {:ok, _} = Repo.insert(schema)
+
+    # shouldn't be in cache
+    refute Cache.get({MyAltSchema, 1})
+
+    # shouldn't be in cache neither in repo
+    refute CacheableRepo.get(MyAltSchema, -1)
+
+    assert_raise Ecto.NoResultsError, fn ->
+      CacheableRepo.get!(MyAltSchema, -1)
+    end
+
+    # fetch from repo and put it in cache
+    assert CacheableRepo.get(MyAltSchema, 1)
+    assert Cache.get!({MyAltSchema, 1})
+
+    # remove from repo and it should be still cached
+    assert Repo.delete!(schema)
+    assert CacheableRepo.get!(MyAltSchema, 1)
   end
 
   test "get_by and get_by! when queryable is a schema" do
